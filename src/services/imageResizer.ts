@@ -119,6 +119,11 @@ export async function resizeImages(
       if ((i + 1) % 10 === 0 || i + 1 === total) {
         logger.info(`已缩放 ${i + 1}/${total} 张图片`);
       }
+
+      // 每处理5张图片让出控制权，防止页面卡死
+      if (i % 5 === 0) {
+        await new Promise(resolve => setTimeout(resolve, 0));
+      }
     } catch (error) {
       logger.error(
         `缩放图片出错 ${path}：${error instanceof Error ? error.message : '未知错误'}`

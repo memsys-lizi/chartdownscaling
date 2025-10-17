@@ -29,7 +29,7 @@ export function useProcessor() {
 
         // 步骤1: 处理.adofai文件
         setProgress(10);
-        const processedAdofai = processAdofaiFiles(
+        const processedAdofai = await processAdofaiFiles(
           zipContents.adofaiFiles,
           selectedFiles,
           scalingFactor

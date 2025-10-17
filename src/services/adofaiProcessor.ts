@@ -152,28 +152,32 @@ export function processAdofaiFile(content: string, lnum: number): string {
 /**
  * 批量处理多个.adofai文件
  */
-export function processAdofaiFiles(
+export async function processAdofaiFiles(
   files: Map<string, string>,
   selectedPaths: string[],
   lnum: number
-): Map<string, string> {
+): Promise<Map<string, string>> {
   const result = new Map<string, string>();
 
   logger.info(`正在处理 ${selectedPaths.length} 个已选 .adofai 文件...`);
 
-  selectedPaths.forEach((path, index) => {
+  for (let index = 0; index < selectedPaths.length; index++) {
+    const path = selectedPaths[index];
     logger.info(`[${index + 1}/${selectedPaths.length}] 正在处理：${path}`);
 
     const content = files.get(path);
     if (!content) {
       logger.error(`文件未找到：${path}`);
-      return;
+      continue;
     }
 
     try {
       const processedContent = processAdofaiFile(content, lnum);
       result.set(path, processedContent);
       logger.success(`成功处理：${path}`);
+      
+      // 每处理一个文件后让出控制权，防止页面卡死
+      await new Promise(resolve => setTimeout(resolve, 0));
     } catch (error) {
       logger.error(
         `处理出错 ${path}：${error instanceof Error ? error.message : '未知错误'}`
@@ -181,7 +185,7 @@ export function processAdofaiFiles(
       // 保留原始内容
       result.set(path, content);
     }
-  });
+  }
 
   // 未选择的文件保持原样
   files.forEach((content, path) => {
